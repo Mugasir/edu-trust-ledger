@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Shield, LayoutDashboard, Users, FileText, Search, Settings, LogOut, Bell } from "lucide-react";
+import { GraduationCap, LayoutDashboard, Users, FileText, Search, Settings, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 interface NavItem {
   icon: typeof LayoutDashboard;
@@ -39,8 +40,9 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
       <aside className="hidden md:flex w-64 flex-col bg-sidebar border-r border-sidebar-border">
         <div className="p-6">
           <Link to="/" className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-sidebar-primary" />
+            <GraduationCap className="h-6 w-6 text-sidebar-primary" />
             <span className="text-lg font-semibold text-sidebar-foreground tracking-tight">EduTrack</span>
+            <span className="text-[9px] font-mono-id text-sidebar-muted bg-sidebar-accent px-1 py-0.5 rounded ml-1">UG</span>
           </Link>
         </div>
 
@@ -51,14 +53,23 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
               <Link
                 key={item.href}
                 to={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-subtle ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-subtle relative ${
                   isActive
                     ? "bg-sidebar-accent text-sidebar-primary"
                     : "text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 }`}
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                {isActive && (
+                  <motion.div
+                    layoutId="sidebar-active"
+                    className="absolute inset-0 bg-sidebar-accent rounded-md"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+                <span className="relative flex items-center gap-3">
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </span>
               </Link>
             );
           })}
@@ -78,16 +89,16 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
       <div className="flex-1 flex flex-col">
         <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
           <div className="flex items-center gap-3 md:hidden">
-            <Shield className="h-5 w-5 text-primary" />
+            <GraduationCap className="h-5 w-5 text-primary" />
             <span className="font-semibold text-primary text-sm">EduTrack</span>
           </div>
           <h1 className="hidden md:block text-lg font-semibold text-foreground">{title}</h1>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-4 w-4 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-accent rounded-full" />
+            <Button variant="ghost" size="icon" className="relative group">
+              <Bell className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-subtle" />
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-accent rounded-full animate-pulse" />
             </Button>
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-subtle cursor-pointer">
               <span className="text-xs font-semibold text-primary">
                 {role === "admin" ? "IN" : "OR"}
               </span>
