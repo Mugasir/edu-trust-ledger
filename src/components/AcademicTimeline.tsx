@@ -1,4 +1,5 @@
-import { CheckCircle, Clock, FileText, LogIn, LogOut, Upload } from "lucide-react";
+import { CheckCircle, Clock, FileText, LogIn, LogOut, Upload, Award } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface TimelineEvent {
   id: string;
@@ -11,7 +12,7 @@ interface TimelineEvent {
 const iconMap = {
   enrolled: LogIn,
   document: FileText,
-  milestone: CheckCircle,
+  milestone: Award,
   left: LogOut,
   verified: CheckCircle,
 };
@@ -25,13 +26,14 @@ const colorMap = {
 };
 
 const sampleEvents: TimelineEvent[] = [
-  { id: "1", date: "2022-01-15", type: "enrolled", institution: "Greenfield Academy", description: "Enrolled in Grade 10 academic program" },
-  { id: "2", date: "2022-06-20", type: "milestone", institution: "Greenfield Academy", description: "Completed mid-year assessments — top 10%" },
-  { id: "3", date: "2022-11-30", type: "document", institution: "Greenfield Academy", description: "Academic transcript uploaded (restricted)" },
-  { id: "4", date: "2023-12-15", type: "milestone", institution: "Greenfield Academy", description: "Graduated Grade 12 with distinction" },
-  { id: "5", date: "2023-12-16", type: "left", institution: "Greenfield Academy", description: "Left institution — completed program" },
-  { id: "6", date: "2024-02-01", type: "enrolled", institution: "Metro University", description: "Enrolled in BSc Computer Science" },
-  { id: "7", date: "2024-06-15", type: "verified", institution: "Metro University", description: "First semester verified — GPA 3.8" },
+  { id: "1", date: "2015-02-02", type: "enrolled", institution: "Nakasero Primary School", description: "Enrolled in Primary One (P1)" },
+  { id: "2", date: "2021-11-15", type: "milestone", institution: "Nakasero Primary School", description: "Sat PLE — Aggregate 8 (Division One)" },
+  { id: "3", date: "2021-12-10", type: "document", institution: "UNEB", description: "PLE results slip uploaded (restricted)" },
+  { id: "4", date: "2022-02-01", type: "enrolled", institution: "Mengo Senior School", description: "Enrolled in Senior One (S1) — O-Level" },
+  { id: "5", date: "2025-11-20", type: "milestone", institution: "Mengo Senior School", description: "Sat UCE — 8 distinctions, Division One" },
+  { id: "6", date: "2025-12-01", type: "left", institution: "Mengo Senior School", description: "Completed O-Level programme" },
+  { id: "7", date: "2026-02-03", type: "enrolled", institution: "Makerere University", description: "Enrolled in BSc Computer Science" },
+  { id: "8", date: "2026-02-15", type: "verified", institution: "Makerere University", description: "First semester verified — CGPA 4.2/5.0" },
 ];
 
 interface AcademicTimelineProps {
@@ -50,11 +52,17 @@ const AcademicTimeline = ({ events = sampleEvents, showRestricted = false }: Aca
 
           if (event.type === "document" && !showRestricted) {
             return (
-              <div key={event.id} className="relative pl-12 animate-fade-in" style={{ animationDelay: `${index * 60}ms` }}>
+              <motion.div
+                key={event.id}
+                className="relative pl-12"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.08, duration: 0.4 }}
+              >
                 <div className={`absolute left-3 top-1 h-5 w-5 rounded-full flex items-center justify-center ${colors}`}>
                   <Upload className="h-3 w-3" />
                 </div>
-                <div className="bg-muted/50 border border-border rounded-md p-3">
+                <div className="bg-muted/50 border border-border rounded-md p-3 hover:bg-muted/70 transition-subtle">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     <span className="font-mono-id">{event.date}</span>
@@ -63,16 +71,26 @@ const AcademicTimeline = ({ events = sampleEvents, showRestricted = false }: Aca
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground italic">Document uploaded — restricted access</p>
                 </div>
-              </div>
+              </motion.div>
             );
           }
 
           return (
-            <div key={event.id} className="relative pl-12 animate-fade-in" style={{ animationDelay: `${index * 60}ms` }}>
-              <div className={`absolute left-3 top-1 h-5 w-5 rounded-full flex items-center justify-center ${colors}`}>
+            <motion.div
+              key={event.id}
+              className="relative pl-12"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.08, duration: 0.4 }}
+            >
+              <motion.div
+                className={`absolute left-3 top-1 h-5 w-5 rounded-full flex items-center justify-center ${colors}`}
+                whileHover={{ scale: 1.3 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
                 <Icon className="h-3 w-3" />
-              </div>
-              <div>
+              </motion.div>
+              <div className="hover:bg-secondary/30 rounded-md p-2 -m-2 transition-subtle">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   <span className="font-mono-id">{event.date}</span>
@@ -81,13 +99,18 @@ const AcademicTimeline = ({ events = sampleEvents, showRestricted = false }: Aca
                 </div>
                 <p className="mt-1 text-sm text-foreground">{event.description}</p>
                 {event.type === "verified" && (
-                  <span className="verified-badge mt-2">
+                  <motion.span
+                    className="verified-badge mt-2"
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: index * 0.08 + 0.3, type: "spring" }}
+                  >
                     <CheckCircle className="h-3 w-3" />
-                    Verified
-                  </span>
+                    UNEB Verified
+                  </motion.span>
                 )}
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
