@@ -1,17 +1,61 @@
 import { useState } from "react";
-import { GraduationCap, Building2, ArrowRight, Shield } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { GraduationCap, Building2, ArrowRight, Shield, Loader2 } from "lucide-react";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Login = () => {
   const [searchParams] = useSearchParams();
   const defaultRole = searchParams.get("role") === "organization" ? "organization" : "institution";
   const [activeTab, setActiveTab] = useState(defaultRole);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const [instEmail, setInstEmail] = useState("");
+  const [instPassword, setInstPassword] = useState("");
+  const [orgEmail, setOrgEmail] = useState("");
+  const [orgPassword, setOrgPassword] = useState("");
+
+  const handleLogin = async (e: React.FormEvent, role: "institution" | "organization") => {
+    e.preventDefault();
+    setLoading(true);
+    const email = role === "institution" ? instEmail : orgEmail;
+    const password = role === "institution" ? instPassword : orgPassword;
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      // Check user role
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (roleData?.role === "institution") {
+          navigate("/admin");
+        } else if (roleData?.role === "organization") {
+          navigate("/organization");
+        } else {
+          navigate("/");
+        }
+      }
+      toast.success("Signed in successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -85,24 +129,21 @@ const Login = () => {
                   <CardTitle className="text-xl">Institution Sign In</CardTitle>
                   <CardDescription>Sign in with your MoES-verified institution credentials.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-number">MoES Registration Number</Label>
-                    <Input id="reg-number" placeholder="e.g. S.541/001" className="font-mono-id" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="inst-email">Email Address</Label>
-                    <Input id="inst-email" type="email" placeholder="admin@school.ac.ug" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="inst-password">Password</Label>
-                    <Input id="inst-password" type="password" placeholder="••••••••" />
-                  </div>
-                  <Link to="/admin">
-                    <Button className="w-full transition-subtle mt-2 group">
+                <CardContent>
+                  <form onSubmit={(e) => handleLogin(e, "institution")} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="inst-email">Email Address</Label>
+                      <Input id="inst-email" type="email" required value={instEmail} onChange={(e) => setInstEmail(e.target.value)} placeholder="admin@school.ac.ug" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="inst-password">Password</Label>
+                      <Input id="inst-password" type="password" required value={instPassword} onChange={(e) => setInstPassword(e.target.value)} placeholder="••••••••" />
+                    </div>
+                    <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Sign In <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
-                  </Link>
+                  </form>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -113,30 +154,31 @@ const Login = () => {
                   <CardTitle className="text-xl">Organisation Access</CardTitle>
                   <CardDescription>Sign in with your paid organisation account to verify learners.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="org-id">Organisation ID</Label>
-                    <Input id="org-id" placeholder="e.g. ORG-UG-8827" className="font-mono-id" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="org-email">Email Address</Label>
-                    <Input id="org-email" type="email" placeholder="hr@company.co.ug" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="org-password">Password</Label>
-                    <Input id="org-password" type="password" placeholder="••••••••" />
-                  </div>
-                  <Link to="/organization">
-                    <Button className="w-full transition-subtle mt-2 group">
+                <CardContent>
+                  <form onSubmit={(e) => handleLogin(e, "organization")} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="org-email">Email Address</Label>
+                      <Input id="org-email" type="email" required value={orgEmail} onChange={(e) => setOrgEmail(e.target.value)} placeholder="hr@company.co.ug" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="org-password">Password</Label>
+                      <Input id="org-password" type="password" required value={orgPassword} onChange={(e) => setOrgPassword(e.target.value)} placeholder="••••••••" />
+                    </div>
+                    <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Sign In <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
-                  </Link>
+                  </form>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
 
-          <p className="mt-6 text-center text-xs text-muted-foreground">
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-primary font-medium hover:underline transition-subtle">Sign Up</Link>
+          </p>
+          <p className="mt-3 text-center text-xs text-muted-foreground">
             By signing in, you agree to EduTrack's{" "}
             <a href="#" className="underline hover:text-foreground transition-subtle">Terms of Service</a>
             {" "}and{" "}

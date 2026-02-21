@@ -99,6 +99,7 @@ const Index = () => {
             <a href="#how-it-works" className="transition-subtle hover:text-foreground">How It Works</a>
             <a href="#stats" className="transition-subtle hover:text-foreground">Impact</a>
             <Link to="/login" className="transition-subtle hover:text-foreground">Sign In</Link>
+            <Link to="/signup" className="transition-subtle hover:text-foreground font-medium text-primary">Sign Up</Link>
           </nav>
           <Link to="/login">
             <Button size="sm" className="transition-subtle">

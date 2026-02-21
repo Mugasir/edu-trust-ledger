@@ -3,8 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrgDashboard from "./pages/OrgDashboard";
 import Verify from "./pages/Verify";
@@ -18,15 +20,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/organization" element={<OrgDashboard />} />
-          <Route path="/verify/:hash" element={<Verify />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/organization" element={<OrgDashboard />} />
+            <Route path="/verify/:hash" element={<Verify />} />
+            <Route path="/verify" element={<Verify />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
