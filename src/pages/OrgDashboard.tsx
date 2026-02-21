@@ -1,11 +1,26 @@
-import { useState } from "react";
-import { Search, FileText, Download, QrCode, ArrowUpRight, CreditCard } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, FileText, Download, QrCode, ArrowUpRight, CreditCard, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DashboardLayout from "@/components/DashboardLayout";
 import AcademicTimeline from "@/components/AcademicTimeline";
 import { motion, AnimatePresence } from "framer-motion";
+import { generateEduTrackReport, generateQRCodeDataUrl } from "@/lib/generateReport";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+const sampleLearner = {
+  id: "EDU-UG-2024-00482",
+  name: "Nakato Sarah",
+  institutions: "Nakasero Primary School, Mengo Senior School, Makerere University",
+  currentLevel: "University — Year 1",
+  timeline: [
+    { level: "Primary (P1–P7)", institution: "Nakasero Primary School", period: "2012 – 2018", status: "Verified", result: "PLE Aggregate 8, Div I" },
+    { level: "O-Level (S1–S4)", institution: "Mengo Senior School", period: "2019 – 2022", status: "Verified", result: "UCE 8 Distinctions, Div I" },
+    { level: "A-Level (S5–S6)", institution: "Mengo Senior School", period: "2023 – 2024", status: "Verified", result: "UACE 20 Points" },
+    { level: "University", institution: "Makerere University", period: "2025 – Present", status: "In Progress" },
+  ],
+};
 
 const recentSearches = [
   { id: "EDU-UG-2024-00482", name: "Nakato Sarah", searched: "2 hours ago" },
@@ -16,9 +31,27 @@ const recentSearches = [
 const OrgDashboard = () => {
   const [searchId, setSearchId] = useState("");
   const [showResult, setShowResult] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [showQrDialog, setShowQrDialog] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const handleSearch = () => {
     if (searchId.trim()) setShowResult(true);
+  };
+
+  const handleDownloadReport = async () => {
+    setDownloading(true);
+    try {
+      await generateEduTrackReport(sampleLearner, window.location.origin);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleShowQR = async () => {
+    const url = await generateQRCodeDataUrl(sampleLearner.id, window.location.origin);
+    setQrCodeUrl(url);
+    setShowQrDialog(true);
   };
 
   return (
@@ -100,13 +133,13 @@ const OrgDashboard = () => {
                       </CardDescription>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="gap-1.5 transition-subtle">
+                      <Button variant="outline" size="sm" className="gap-1.5 transition-subtle" onClick={handleShowQR}>
                         <QrCode className="h-3.5 w-3.5" />
                         QR Code
                       </Button>
-                      <Button size="sm" className="gap-1.5 transition-subtle group">
+                      <Button size="sm" className="gap-1.5 transition-subtle group" onClick={handleDownloadReport} disabled={downloading}>
                         <Download className="h-3.5 w-3.5 group-hover:translate-y-0.5 transition-transform" />
-                        Download Report
+                        {downloading ? "Generating..." : "Download Report"}
                       </Button>
                     </div>
                   </div>
@@ -153,7 +186,6 @@ const OrgDashboard = () => {
             </motion.div>
           )}
 
-          {/* Recent Searches */}
           {!showResult && (
             <motion.div
               key="recent"
@@ -193,6 +225,20 @@ const OrgDashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* QR Code Dialog */}
+        <Dialog open={showQrDialog} onOpenChange={setShowQrDialog}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Verification QR Code</DialogTitle>
+            </DialogHeader>
+            <div className="text-center space-y-4">
+              {qrCodeUrl && <img src={qrCodeUrl} alt="QR Code" className="mx-auto w-48 h-48" />}
+              <p className="text-sm text-muted-foreground">Scan this QR code to verify the academic record for <span className="font-mono-id font-medium text-foreground">{sampleLearner.id}</span></p>
+              <p className="text-xs text-muted-foreground">Links to the EduTrack verification portal</p>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );

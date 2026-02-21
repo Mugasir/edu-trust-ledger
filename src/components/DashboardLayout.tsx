@@ -1,8 +1,9 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GraduationCap, LayoutDashboard, Users, FileText, Search, Settings, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavItem {
   icon: typeof LayoutDashboard;
@@ -32,7 +33,14 @@ const orgNav: NavItem[] = [
 
 const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const navItems = role === "admin" ? adminNav : orgNav;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -76,12 +84,13 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
         </nav>
 
         <div className="p-3 border-t border-sidebar-border">
-          <Link to="/login">
-            <button className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-subtle w-full">
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </button>
-          </Link>
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-subtle w-full"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
         </div>
       </aside>
 
