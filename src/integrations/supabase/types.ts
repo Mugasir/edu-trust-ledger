@@ -44,6 +44,65 @@ export type Database = {
         }
         Relationships: []
       }
+      learners: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          edutrack_id: string
+          first_name: string
+          gender: string | null
+          guardian_contact: string | null
+          guardian_name: string | null
+          id: string
+          institution_id: string
+          last_name: string
+          level: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          edutrack_id: string
+          first_name: string
+          gender?: string | null
+          guardian_contact?: string | null
+          guardian_name?: string | null
+          id?: string
+          institution_id: string
+          last_name: string
+          level?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          edutrack_id?: string
+          first_name?: string
+          gender?: string | null
+          guardian_contact?: string | null
+          guardian_name?: string | null
+          id?: string
+          institution_id?: string
+          last_name?: string
+          level?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learners_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           contact_email: string | null
