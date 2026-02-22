@@ -1,25 +1,14 @@
-import { Users, FileText, CheckCircle, AlertTriangle, ArrowUpRight, Plus, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Users, FileText, CheckCircle, AlertTriangle, ArrowUpRight, Search } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DashboardLayout from "@/components/DashboardLayout";
 import AcademicTimeline from "@/components/AcademicTimeline";
+import AddLearnerDialog from "@/components/AddLearnerDialog";
 import { motion } from "framer-motion";
-
-const stats = [
-  { label: "Total Learners", value: "1,247", icon: Users, change: "+23 this term" },
-  { label: "Documents Uploaded", value: "3,891", icon: FileText, change: "+156 this term" },
-  { label: "UNEB Verified", value: "1,102", icon: CheckCircle, change: "88.4% verified" },
-  { label: "Pending Actions", value: "12", icon: AlertTriangle, change: "3 require attention" },
-];
-
-const recentLearners = [
-  { id: "EDU-UG-2024-00482", name: "Nakato Sarah", status: "Active", date: "2026-02-01", level: "S3" },
-  { id: "EDU-UG-2024-00481", name: "Okello James", status: "Active", date: "2026-01-28", level: "S1" },
-  { id: "EDU-UG-2024-00479", name: "Namutebi Prossy", status: "Completed", date: "2025-12-15", level: "P7" },
-  { id: "EDU-UG-2024-00475", name: "Ssempijja David", status: "Active", date: "2026-01-15", level: "S4" },
-  { id: "EDU-UG-2024-00470", name: "Apio Grace", status: "Left", date: "2025-11-20", level: "S2" },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
 
 const statusColors: Record<string, string> = {
   Active: "text-verified bg-verified-muted",
@@ -28,8 +17,55 @@ const statusColors: Record<string, string> = {
 };
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch institution for current user
+  const { data: institution } = useQuery({
+    queryKey: ["institution", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("institutions")
+        .select("*")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Fetch learners
+  const { data: learners = [] } = useQuery({
+    queryKey: ["learners", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("learners")
+        .select("*")
+        .eq("user_id", user!.id)
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+    enabled: !!user,
+  });
+
+  const filteredLearners = learners.filter((l: any) => {
+    const q = searchQuery.toLowerCase();
+    return !q || l.first_name.toLowerCase().includes(q) || l.last_name.toLowerCase().includes(q) || l.edutrack_id.toLowerCase().includes(q);
+  });
+
+  const totalLearners = learners.length;
+  const activeLearners = learners.filter((l: any) => l.status === "Active").length;
+  const completedLearners = learners.filter((l: any) => l.status === "Completed").length;
+
+  const stats = [
+    { label: "Total Learners", value: String(totalLearners), icon: Users, change: `${activeLearners} active` },
+    { label: "Documents", value: "0", icon: FileText, change: "Upload coming soon" },
+    { label: "Active", value: String(activeLearners), icon: CheckCircle, change: `${totalLearners > 0 ? Math.round((activeLearners / totalLearners) * 100) : 0}% of total` },
+    { label: "Completed", value: String(completedLearners), icon: AlertTriangle, change: `${completedLearners} graduated` },
+  ];
+
   return (
-    <DashboardLayout role="admin" title="Institution Dashboard">
+    <DashboardLayout role="admin" title={institution?.name ?? "Institution Dashboard"}>
       <div className="space-y-6">
         {/* Stats */}
         <motion.div
@@ -58,27 +94,36 @@ const AdminDashboard = () => {
         </motion.div>
 
         <div className="grid lg:grid-cols-5 gap-6">
-          {/* Recent Learners */}
+          {/* Learners List */}
           <Card className="lg:col-span-3 border-border">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-base">Recent Learners</CardTitle>
-                  <CardDescription>Latest enrolled learners at your school</CardDescription>
+                  <CardTitle className="text-base">Learners</CardTitle>
+                  <CardDescription>
+                    {totalLearners > 0 ? `${totalLearners} learners registered` : "No learners yet — add your first learner"}
+                  </CardDescription>
                 </div>
-                <Button size="sm" className="gap-1.5 transition-subtle group">
-                  <Plus className="h-3.5 w-3.5 group-hover:rotate-90 transition-transform" />
-                  Add Learner
-                </Button>
+                <AddLearnerDialog institutionId={institution?.id ?? null} />
               </div>
             </CardHeader>
             <CardContent>
               <div className="relative mb-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search by name or EduTrack ID..." className="pl-9" />
+                <Input
+                  placeholder="Search by name or EduTrack ID..."
+                  className="pl-9"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
-                {recentLearners.map((learner, i) => (
+                {filteredLearners.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    {totalLearners === 0 ? "Register your first learner to get started." : "No learners match your search."}
+                  </p>
+                )}
+                {filteredLearners.slice(0, 10).map((learner: any, i: number) => (
                   <motion.div
                     key={learner.id}
                     initial={{ opacity: 0, x: -10 }}
@@ -88,16 +133,18 @@ const AdminDashboard = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-primary">{learner.name.split(" ").map(n => n[0]).join("")}</span>
+                        <span className="text-xs font-semibold text-primary">
+                          {learner.first_name[0]}{learner.last_name[0]}
+                        </span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-foreground">{learner.name}</p>
-                        <p className="text-xs text-muted-foreground font-mono-id">{learner.id}</p>
+                        <p className="text-sm font-medium text-foreground">{learner.first_name} {learner.last_name}</p>
+                        <p className="text-xs text-muted-foreground font-mono-id">{learner.edutrack_id}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-muted-foreground font-mono-id">{learner.level}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[learner.status]}`}>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[learner.status] ?? "text-muted-foreground bg-muted"}`}>
                         {learner.status}
                       </span>
                       <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-subtle" />
@@ -108,7 +155,7 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Recent Activity / Timeline preview */}
+          {/* Recent Activity */}
           <Card className="lg:col-span-2 border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Recent Activity</CardTitle>
