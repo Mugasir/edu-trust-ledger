@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
-import { Users, FileText, CheckCircle, AlertTriangle, ArrowUpRight, Search } from "lucide-react";
+import { useState } from "react";
+import { Users, FileText, CheckCircle, AlertTriangle, ArrowUpRight, Search, UserCog, Clock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/DashboardLayout";
-import AcademicTimeline from "@/components/AcademicTimeline";
 import AddLearnerDialog from "@/components/AddLearnerDialog";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 const statusColors: Record<string, string> = {
   Active: "text-verified bg-verified-muted",
@@ -155,14 +156,51 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Recent Activity */}
+        {/* Recent Activity - real data */}
           <Card className="lg:col-span-2 border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Recent Activity</CardTitle>
-              <CardDescription>Latest academic events</CardDescription>
+              <CardDescription>Latest learner registrations</CardDescription>
             </CardHeader>
             <CardContent>
-              <AcademicTimeline showRestricted />
+              {learners.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No activity yet. Add your first learner.</p>
+              ) : (
+                <div className="space-y-4">
+                  {learners.slice(0, 8).map((learner: any, i: number) => (
+                    <motion.div
+                      key={learner.id}
+                      className="relative pl-8"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                    >
+                      <div className="absolute left-0 top-1 h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Users className="h-3 w-3 text-primary" />
+                      </div>
+                      <div className="text-sm">
+                        <p className="font-medium text-foreground">
+                          {learner.first_name} {learner.last_name}
+                          <Badge variant="outline" className="ml-2 text-[10px]">{learner.level}</Badge>
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                          <Clock className="h-3 w-3" />
+                          <span>{format(new Date(learner.created_at), "MMM d, yyyy")}</span>
+                          {learner.uploaded_by && (
+                            <>
+                              <span>·</span>
+                              <span className="flex items-center gap-1">
+                                <UserCog className="h-3 w-3" />
+                                {learner.uploaded_by}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

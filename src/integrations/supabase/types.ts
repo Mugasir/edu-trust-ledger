@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      institution_staff: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          institution_id: string
+          staff_role: Database["public"]["Enums"]["staff_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id?: string
+          institution_id: string
+          staff_role?: Database["public"]["Enums"]["staff_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          institution_id?: string
+          staff_role?: Database["public"]["Enums"]["staff_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institution_staff_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutions: {
         Row: {
           created_at: string
@@ -55,10 +90,12 @@ export type Database = {
           guardian_name: string | null
           id: string
           institution_id: string
+          last_modified_by: string | null
           last_name: string
           level: string
           status: string
           updated_at: string
+          uploaded_by: string | null
           user_id: string
         }
         Insert: {
@@ -71,10 +108,12 @@ export type Database = {
           guardian_name?: string | null
           id?: string
           institution_id: string
+          last_modified_by?: string | null
           last_name: string
           level?: string
           status?: string
           updated_at?: string
+          uploaded_by?: string | null
           user_id: string
         }
         Update: {
@@ -87,10 +126,12 @@ export type Database = {
           guardian_name?: string | null
           id?: string
           institution_id?: string
+          last_modified_by?: string | null
           last_name?: string
           level?: string
           status?: string
           updated_at?: string
+          uploaded_by?: string | null
           user_id?: string
         }
         Relationships: [
@@ -193,6 +234,12 @@ export type Database = {
     }
     Enums: {
       app_role: "institution" | "organization"
+      staff_role:
+        | "headmaster"
+        | "dean"
+        | "registrar"
+        | "teacher"
+        | "admin_staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -321,6 +368,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["institution", "organization"],
+      staff_role: ["headmaster", "dean", "registrar", "teacher", "admin_staff"],
     },
   },
 } as const
