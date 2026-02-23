@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  role: "institution" | "organization" | null;
+  role: "institution" | "organization" | "admin" | null;
   signOut: () => Promise<void>;
 }
 
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<"institution" | "organization" | null>(null);
+  const [role, setRole] = useState<"institution" | "organization" | "admin" | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             .select("role")
             .eq("user_id", session.user.id)
             .maybeSingle();
-          setRole(data?.role as "institution" | "organization" | null);
+          setRole(data?.role as "institution" | "organization" | "admin" | null);
         } else {
           setRole(null);
         }
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .eq("user_id", session.user.id)
           .maybeSingle()
           .then(({ data }) => {
-            setRole(data?.role as "institution" | "organization" | null);
+            setRole(data?.role as "institution" | "organization" | "admin" | null);
             setLoading(false);
           });
       } else {
