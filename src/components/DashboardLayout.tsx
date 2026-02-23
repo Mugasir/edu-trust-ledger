@@ -13,7 +13,7 @@ interface NavItem {
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  role: "admin" | "organization";
+  role: "admin" | "organization" | "platform-admin";
   title: string;
 }
 
@@ -31,11 +31,17 @@ const orgNav: NavItem[] = [
   { icon: Settings, label: "Account", href: "/organization/settings" },
 ];
 
+const platformAdminNav: NavItem[] = [
+  { icon: LayoutDashboard, label: "Overview", href: "/platform-admin" },
+  { icon: Users, label: "All Learners", href: "/platform-admin" },
+  { icon: Settings, label: "Settings", href: "/platform-admin" },
+];
+
 const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const navItems = role === "admin" ? adminNav : orgNav;
+  const navItems = role === "admin" ? adminNav : role === "platform-admin" ? platformAdminNav : orgNav;
 
   const handleSignOut = async () => {
     await signOut();
@@ -109,7 +115,7 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
             </Button>
             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-subtle cursor-pointer">
               <span className="text-xs font-semibold text-primary">
-                {role === "admin" ? "IN" : "OR"}
+                {role === "admin" ? "IN" : role === "platform-admin" ? "AD" : "OR"}
               </span>
             </div>
           </div>

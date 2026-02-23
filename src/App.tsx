@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrgDashboard from "./pages/OrgDashboard";
+import PlatformAdminDashboard from "./pages/PlatformAdminDashboard";
 import Verify from "./pages/Verify";
 import NotFound from "./pages/NotFound";
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/organization" element={<OrgDashboard />} />
+            <Route path="/platform-admin" element={<PlatformAdminDashboard />} />
             <Route path="/verify/:hash" element={<Verify />} />
             <Route path="/verify" element={<Verify />} />
             <Route path="*" element={<NotFound />} />
