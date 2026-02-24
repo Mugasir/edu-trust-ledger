@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { Shield, Search, FileCheck, ArrowRight, CheckCircle, Lock, Eye, GraduationCap, BookOpen, Award } from "lucide-react";
+import graduationCelebrate from "@/assets/graduation-celebrate.jpg";
+import graduationCeremony from "@/assets/graduation-ceremony.jpg";
+import graduationGroup from "@/assets/graduation-group.jpg";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -163,11 +166,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Stats Counter */}
+      {/* Stats Counter with Graduation Photos */}
       <section id="stats" className="bg-card border-b border-border">
         <div className="container mx-auto px-6 py-16">
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center mb-12"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
@@ -179,6 +182,32 @@ const Index = () => {
                   <AnimatedCounter target={stat.value} suffix={stat.suffix} />
                 </p>
                 <p className="text-sm text-muted-foreground mt-2 uppercase tracking-wider">{stat.label}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Graduation Photo Gallery */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+          >
+            {[
+              { src: graduationCelebrate, alt: "Ugandan students celebrating graduation by throwing caps in the air", caption: "Celebrating Academic Excellence" },
+              { src: graduationCeremony, alt: "Students receiving diplomas at a graduation ceremony", caption: "Verified Graduation Ceremonies" },
+              { src: graduationGroup, alt: "Group of graduates holding certificates on campus", caption: "Certified & Authenticated" },
+            ].map((img, i) => (
+              <motion.div key={i} variants={fadeUp} custom={i} className="relative rounded-lg overflow-hidden group cursor-default">
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-48 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent" />
+                <p className="absolute bottom-3 left-4 text-sm font-medium text-primary-foreground">{img.caption}</p>
               </motion.div>
             ))}
           </motion.div>
