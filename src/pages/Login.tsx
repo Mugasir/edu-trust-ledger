@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GraduationCap, Building2, ArrowRight, Shield, Loader2 } from "lucide-react";
+import { GraduationCap, Building2, ArrowRight, Shield, Loader2, ShieldCheck } from "lucide-react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,8 @@ import { toast } from "sonner";
 
 const Login = () => {
   const [searchParams] = useSearchParams();
-  const defaultRole = searchParams.get("role") === "organization" ? "organization" : "institution";
+  const roleParam = searchParams.get("role");
+  const defaultRole = roleParam === "organization" ? "organization" : roleParam === "admin" ? "admin" : "institution";
   const [activeTab, setActiveTab] = useState(defaultRole);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -21,18 +22,19 @@ const Login = () => {
   const [instPassword, setInstPassword] = useState("");
   const [orgEmail, setOrgEmail] = useState("");
   const [orgPassword, setOrgPassword] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
 
-  const handleLogin = async (e: React.FormEvent, role: "institution" | "organization") => {
+  const handleLogin = async (e: React.FormEvent, role: "institution" | "organization" | "admin") => {
     e.preventDefault();
     setLoading(true);
-    const email = role === "institution" ? instEmail : orgEmail;
-    const password = role === "institution" ? instPassword : orgPassword;
+    const email = role === "institution" ? instEmail : role === "organization" ? orgEmail : adminEmail;
+    const password = role === "institution" ? instPassword : role === "organization" ? orgPassword : adminPassword;
 
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      // Check user role
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: roleData } = await supabase
@@ -114,7 +116,7 @@ const Login = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
               <TabsTrigger value="institution" className="gap-2 transition-subtle">
                 <Building2 className="h-4 w-4" />
                 Institution
@@ -122,6 +124,10 @@ const Login = () => {
               <TabsTrigger value="organization" className="gap-2 transition-subtle">
                 <Shield className="h-4 w-4" />
                 Organisation
+              </TabsTrigger>
+              <TabsTrigger value="admin" className="gap-2 transition-subtle">
+                <ShieldCheck className="h-4 w-4" />
+                Admin
               </TabsTrigger>
             </TabsList>
 
@@ -165,6 +171,31 @@ const Login = () => {
                     <div className="space-y-2">
                       <Label htmlFor="org-password">Password</Label>
                       <Input id="org-password" type="password" required value={orgPassword} onChange={(e) => setOrgPassword(e.target.value)} placeholder="••••••••" />
+                    </div>
+                    <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                      Sign In <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="admin">
+              <Card className="border-border shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">Platform Admin</CardTitle>
+                  <CardDescription>Sign in to the EduTrack administrative control panel.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={(e) => handleLogin(e, "admin")} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="admin-email">Admin Email</Label>
+                      <Input id="admin-email" type="email" required value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} placeholder="admin@edutrack.ug" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="admin-password">Password</Label>
+                      <Input id="admin-password" type="password" required value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} placeholder="••••••••" />
                     </div>
                     <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
