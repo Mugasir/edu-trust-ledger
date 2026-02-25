@@ -55,7 +55,7 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
         <div className="p-6">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="h-6 w-6 text-sidebar-primary" />
-            <span className="text-lg font-semibold text-sidebar-foreground tracking-tight">EduTrack</span>
+            <span className="text-lg font-semibold text-sidebar-foreground tracking-tight">EduCoreTrack</span>
             <span className="text-[9px] font-mono-id text-sidebar-muted bg-sidebar-accent px-1 py-0.5 rounded ml-1">UG</span>
           </Link>
         </div>
@@ -105,7 +105,7 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
         <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
           <div className="flex items-center gap-3 md:hidden">
             <GraduationCap className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-primary text-sm">EduTrack</span>
+            <span className="font-semibold text-primary text-sm">EduCoreTrack</span>
           </div>
           <h1 className="hidden md:block text-lg font-semibold text-foreground">{title}</h1>
           <div className="flex items-center gap-3">

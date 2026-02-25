@@ -69,7 +69,7 @@ const Login = () => {
         <div className="relative flex flex-col justify-between p-12 w-full">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="h-7 w-7 text-primary-foreground" />
-            <span className="text-xl font-semibold text-primary-foreground tracking-tight">EduTrack</span>
+            <span className="text-xl font-semibold text-primary-foreground tracking-tight">EduCoreTrack</span>
             <span className="text-[10px] font-mono-id text-primary-foreground/50 bg-primary-foreground/10 px-1.5 py-0.5 rounded ml-1">UG</span>
           </Link>
           <motion.div
@@ -98,7 +98,7 @@ const Login = () => {
               ))}
             </div>
           </motion.div>
-          <p className="text-xs text-primary-foreground/40">© 2026 EduTrack Uganda. All records are encrypted and tamper-proof.</p>
+          <p className="text-xs text-primary-foreground/40">© 2026 EduCoreTrack Uganda. All records are encrypted and tamper-proof.</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ const Login = () => {
         >
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <GraduationCap className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-primary tracking-tight">EduTrack</span>
+            <span className="text-lg font-semibold text-primary tracking-tight">EduCoreTrack</span>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -185,7 +185,7 @@ const Login = () => {
               <Card className="border-border shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-xl">Platform Admin</CardTitle>
-                  <CardDescription>Sign in to the EduTrack administrative control panel.</CardDescription>
+                  <CardDescription>Sign in to the EduCoreTrack administrative control panel.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={(e) => handleLogin(e, "admin")} className="space-y-4">
@@ -212,7 +212,7 @@ const Login = () => {
             <Link to="/signup" className="text-primary font-medium hover:underline transition-subtle">Sign Up</Link>
           </p>
           <p className="mt-3 text-center text-xs text-muted-foreground">
-            By signing in, you agree to EduTrack's{" "}
+            By signing in, you agree to EduCoreTrack's{" "}
             <a href="#" className="underline hover:text-foreground transition-subtle">Terms of Service</a>
             {" "}and{" "}
             <a href="#" className="underline hover:text-foreground transition-subtle">Privacy Policy</a>.
