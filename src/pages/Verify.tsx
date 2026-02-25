@@ -13,7 +13,7 @@ const Verify = () => {
         <div className="container mx-auto flex items-center justify-between py-4 px-6">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-primary tracking-tight">EduTrack</span>
+            <span className="text-lg font-semibold text-primary tracking-tight">EduCoreTrack</span>
             <span className="text-[10px] font-mono-id text-muted-foreground bg-secondary px-1.5 py-0.5 rounded ml-1">UG</span>
           </div>
           <span className="text-xs text-muted-foreground">UNEB Verification Portal</span>
@@ -54,7 +54,7 @@ const Verify = () => {
                 </span>
               </CardTitle>
               <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                <span>EduTrack ID: <span className="font-mono-id">EDU-UG-2024-00482</span></span>
+                <span>EduCoreTrack ID: <span className="font-mono-id">EDU-UG-2024-00482</span></span>
                 <span>·</span>
                 <span>Nakato Sarah</span>
               </div>
@@ -66,7 +66,7 @@ const Verify = () => {
 
           <div className="mt-6 text-center">
             <p className="text-xs text-muted-foreground">
-              This verification page confirms the authenticity of the academic record above.
+              This verification page confirms the authenticity of the academic record via EduCoreTrack.
               <br />
               Sensitive documents (UNEB result slips, transcripts) are not displayed.{" "}
               <a href="#" className="inline-flex items-center gap-1 text-primary hover:underline transition-subtle">

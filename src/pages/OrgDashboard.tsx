@@ -91,7 +91,7 @@ const OrgDashboard = () => {
         <Card className="border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Search Learner</CardTitle>
-            <CardDescription>Enter an EduTrack ID to view a verified academic timeline across Uganda's education levels</CardDescription>
+            <CardDescription>Enter an EduCoreTrack ID to view a verified academic timeline across Uganda's education levels</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex gap-3">
@@ -155,7 +155,7 @@ const OrgDashboard = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">EduTrack ID</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">EduCoreTrack ID</p>
                     <p className="text-sm font-mono-id text-foreground">EDU-UG-2024-00482</p>
                   </div>
                   <div>
@@ -235,7 +235,7 @@ const OrgDashboard = () => {
             <div className="text-center space-y-4">
               {qrCodeUrl && <img src={qrCodeUrl} alt="QR Code" className="mx-auto w-48 h-48" />}
               <p className="text-sm text-muted-foreground">Scan this QR code to verify the academic record for <span className="font-mono-id font-medium text-foreground">{sampleLearner.id}</span></p>
-              <p className="text-xs text-muted-foreground">Links to the EduTrack verification portal</p>
+              <p className="text-xs text-muted-foreground">Links to the EduCoreTrack verification portal</p>
             </div>
           </DialogContent>
         </Dialog>
