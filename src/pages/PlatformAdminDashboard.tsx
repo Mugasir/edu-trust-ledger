@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Building2, GraduationCap, Shield, Search, ArrowUpRight, Clock, AlertTriangle, CheckCircle } from "lucide-react";
+import { Users, Building2, GraduationCap, Shield, Search, ArrowUpRight, Clock, AlertTriangle, CheckCircle, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import AddInstitutionDialog from "@/components/AddInstitutionDialog";
+import AddOrganizationDialog from "@/components/AddOrganizationDialog";
+import TranscriptUploadDialog from "@/components/TranscriptUploadDialog";
 
 const PlatformAdminDashboard = () => {
   const { user } = useAuth();
@@ -39,6 +42,15 @@ const PlatformAdminDashboard = () => {
     queryFn: async () => {
       const { data } = await supabase.from("organizations").select("*").order("created_at", { ascending: false });
       return data ?? [];
+    },
+    enabled: !!user,
+  });
+
+  const { data: transcripts = [] } = useQuery({
+    queryKey: ["admin-transcripts"],
+    queryFn: async () => {
+      const { data } = await supabase.from("transcripts" as any).select("*").order("created_at", { ascending: false });
+      return (data as any[]) ?? [];
     },
     enabled: !!user,
   });
@@ -112,7 +124,7 @@ const PlatformAdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="institutions" className="gap-2">
               <Building2 className="h-4 w-4" /> Institutions ({totalInstitutions})
             </TabsTrigger>
@@ -122,13 +134,19 @@ const PlatformAdminDashboard = () => {
             <TabsTrigger value="organizations" className="gap-2">
               <Shield className="h-4 w-4" /> Organizations ({totalOrgs})
             </TabsTrigger>
+            <TabsTrigger value="transcripts" className="gap-2">
+              <FileText className="h-4 w-4" /> Transcripts ({transcripts.length})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="institutions" className="mt-4">
             <Card className="border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Registered Institutions</CardTitle>
-                <CardDescription>All MoES-verified schools and universities</CardDescription>
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">Registered Institutions</CardTitle>
+                  <CardDescription>All MoES-verified schools and universities</CardDescription>
+                </div>
+                <AddInstitutionDialog />
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -219,9 +237,12 @@ const PlatformAdminDashboard = () => {
 
           <TabsContent value="organizations" className="mt-4">
             <Card className="border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Registered Organizations</CardTitle>
-                <CardDescription>Organizations with verification access</CardDescription>
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">Registered Organizations</CardTitle>
+                  <CardDescription>Organizations with verification access</CardDescription>
+                </div>
+                <AddOrganizationDialog />
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -253,6 +274,58 @@ const PlatformAdminDashboard = () => {
                       </div>
                     </motion.div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="transcripts" className="mt-4">
+            <Card className="border-border">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">MoE Transcripts</CardTitle>
+                  <CardDescription>Official transcripts from the Ministry of Education</CardDescription>
+                </div>
+                <TranscriptUploadDialog learners={learners} />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {transcripts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">No transcripts uploaded yet.</p>
+                  ) : (
+                    transcripts.map((t: any, i: number) => {
+                      const learner = learners.find((l: any) => l.id === t.learner_id);
+                      return (
+                        <motion.div
+                          key={t.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.04 }}
+                          className="flex items-center justify-between p-3 rounded-md hover:bg-secondary/50 transition-subtle"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                              <FileText className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{t.file_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {learner ? `${learner.first_name} ${learner.last_name} — ${learner.edutrack_id}` : "Unknown learner"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline" className="text-[10px]">{t.transcript_type}</Badge>
+                            {t.academic_year && <span className="text-xs text-muted-foreground">{t.academic_year}</span>}
+                            <span className="text-xs text-muted-foreground">{t.uploaded_by}</span>
+                            <span className="text-xs text-muted-foreground font-mono-id">
+                              {format(new Date(t.created_at), "MMM d, yyyy")}
+                            </span>
+                          </div>
+                        </motion.div>
+                      );
+                    })
+                  )}
                 </div>
               </CardContent>
             </Card>
