@@ -237,9 +237,12 @@ const PlatformAdminDashboard = () => {
 
           <TabsContent value="organizations" className="mt-4">
             <Card className="border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Registered Organizations</CardTitle>
-                <CardDescription>Organizations with verification access</CardDescription>
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">Registered Organizations</CardTitle>
+                  <CardDescription>Organizations with verification access</CardDescription>
+                </div>
+                <AddOrganizationDialog />
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
