@@ -278,6 +278,58 @@ const PlatformAdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="transcripts" className="mt-4">
+            <Card className="border-border">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">MoE Transcripts</CardTitle>
+                  <CardDescription>Official transcripts from the Ministry of Education</CardDescription>
+                </div>
+                <TranscriptUploadDialog learners={learners} />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {transcripts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">No transcripts uploaded yet.</p>
+                  ) : (
+                    transcripts.map((t: any, i: number) => {
+                      const learner = learners.find((l: any) => l.id === t.learner_id);
+                      return (
+                        <motion.div
+                          key={t.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.04 }}
+                          className="flex items-center justify-between p-3 rounded-md hover:bg-secondary/50 transition-subtle"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                              <FileText className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{t.file_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {learner ? `${learner.first_name} ${learner.last_name} — ${learner.edutrack_id}` : "Unknown learner"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline" className="text-[10px]">{t.transcript_type}</Badge>
+                            {t.academic_year && <span className="text-xs text-muted-foreground">{t.academic_year}</span>}
+                            <span className="text-xs text-muted-foreground">{t.uploaded_by}</span>
+                            <span className="text-xs text-muted-foreground font-mono-id">
+                              {format(new Date(t.created_at), "MMM d, yyyy")}
+                            </span>
+                          </div>
+                        </motion.div>
+                      );
+                    })
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
 
         {/* Recent Activity */}
