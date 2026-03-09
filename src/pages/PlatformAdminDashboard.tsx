@@ -124,7 +124,7 @@ const PlatformAdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="institutions" className="gap-2">
               <Building2 className="h-4 w-4" /> Institutions ({totalInstitutions})
             </TabsTrigger>
@@ -133,6 +133,9 @@ const PlatformAdminDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="organizations" className="gap-2">
               <Shield className="h-4 w-4" /> Organizations ({totalOrgs})
+            </TabsTrigger>
+            <TabsTrigger value="transcripts" className="gap-2">
+              <FileText className="h-4 w-4" /> Transcripts ({transcripts.length})
             </TabsTrigger>
           </TabsList>
 
