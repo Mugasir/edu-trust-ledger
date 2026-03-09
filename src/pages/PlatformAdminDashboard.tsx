@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Building2, GraduationCap, Shield, Search, ArrowUpRight, Clock, AlertTriangle, CheckCircle } from "lucide-react";
+import { Users, Building2, GraduationCap, Shield, Search, ArrowUpRight, Clock, AlertTriangle, CheckCircle, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import AddInstitutionDialog from "@/components/AddInstitutionDialog";
+import AddOrganizationDialog from "@/components/AddOrganizationDialog";
+import TranscriptUploadDialog from "@/components/TranscriptUploadDialog";
 
 const PlatformAdminDashboard = () => {
   const { user } = useAuth();
