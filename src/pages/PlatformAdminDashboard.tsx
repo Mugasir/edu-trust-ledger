@@ -53,7 +53,7 @@ const PlatformAdminDashboard = () => {
       return (data as any[]) ?? [];
     },
     enabled: !!user,
-  
+  });
 
   const totalLearners = learners.length;
   const activeLearners = learners.filter((l: any) => l.status === "Active").length;
