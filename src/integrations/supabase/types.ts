@@ -201,6 +201,47 @@ export type Database = {
         }
         Relationships: []
       }
+      transcripts: {
+        Row: {
+          academic_year: string | null
+          created_at: string
+          file_name: string
+          file_path: string
+          id: string
+          learner_id: string
+          transcript_type: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          academic_year?: string | null
+          created_at?: string
+          file_name: string
+          file_path: string
+          id?: string
+          learner_id: string
+          transcript_type?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          academic_year?: string | null
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          learner_id?: string
+          transcript_type?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transcripts_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
