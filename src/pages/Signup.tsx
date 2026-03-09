@@ -67,8 +67,8 @@ const Signup = () => {
         if (instError) console.error("Institution insert error:", instError);
       }
 
-      toast.success("Account created! Please check your email to verify your account.");
-      navigate("/login");
+      toast.success("Account created successfully!");
+      navigate("/admin");
     } catch (error: any) {
       toast.error(error.message || "Signup failed");
     } finally {
@@ -103,8 +103,8 @@ const Signup = () => {
         if (orgError) console.error("Organization insert error:", orgError);
       }
 
-      toast.success("Account created! Please check your email to verify your account.");
-      navigate("/login");
+      toast.success("Account created successfully!");
+      navigate("/organization");
     } catch (error: any) {
       toast.error(error.message || "Signup failed");
     } finally {
