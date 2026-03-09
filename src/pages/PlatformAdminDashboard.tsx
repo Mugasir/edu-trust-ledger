@@ -46,6 +46,15 @@ const PlatformAdminDashboard = () => {
     enabled: !!user,
   });
 
+  const { data: transcripts = [] } = useQuery({
+    queryKey: ["admin-transcripts"],
+    queryFn: async () => {
+      const { data } = await supabase.from("transcripts" as any).select("*").order("created_at", { ascending: false });
+      return (data as any[]) ?? [];
+    },
+    enabled: !!user,
+  
+
   const totalLearners = learners.length;
   const activeLearners = learners.filter((l: any) => l.status === "Active").length;
   const totalInstitutions = institutions.length;
