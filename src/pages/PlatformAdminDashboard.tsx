@@ -141,9 +141,12 @@ const PlatformAdminDashboard = () => {
 
           <TabsContent value="institutions" className="mt-4">
             <Card className="border-border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Registered Institutions</CardTitle>
-                <CardDescription>All MoES-verified schools and universities</CardDescription>
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">Registered Institutions</CardTitle>
+                  <CardDescription>All MoES-verified schools and universities</CardDescription>
+                </div>
+                <AddInstitutionDialog />
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
