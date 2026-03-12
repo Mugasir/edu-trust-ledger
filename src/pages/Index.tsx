@@ -335,7 +335,7 @@ const Index = () => {
         <div className="container mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-muted-foreground">
             <GraduationCap className="h-4 w-4" />
-            <span className="text-sm font-medium">EduCoreTrack Uganda</span>
+            <span className="text-sm font-medium">EduTrack Uganda</span>
             <span className="text-xs text-muted-foreground/60">© 2026</span>
           </div>
           <div className="flex items-center gap-6 text-xs text-muted-foreground">

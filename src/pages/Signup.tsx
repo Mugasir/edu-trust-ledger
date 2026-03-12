@@ -274,7 +274,7 @@ const Signup = () => {
             <Link to="/login" className="text-primary font-medium hover:underline transition-subtle">Sign In</Link>
           </p>
           <p className="mt-3 text-center text-xs text-muted-foreground">
-            By signing up, you agree to EduCoreTrack's{" "}
+            By signing up, you agree to EduTrack's{" "}
             <a href="#" className="underline hover:text-foreground transition-subtle">Terms of Service</a>
             {" "}and{" "}
             <a href="#" className="underline hover:text-foreground transition-subtle">Privacy Policy</a>.

@@ -105,7 +105,7 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
         <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
           <div className="flex items-center gap-3 md:hidden">
             <GraduationCap className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-primary text-sm">EduCoreTrack</span>
+            <span className="font-semibold text-primary text-sm">EduTrack</span>
           </div>
           <h1 className="hidden md:block text-lg font-semibold text-foreground">{title}</h1>
           <div className="flex items-center gap-3">
