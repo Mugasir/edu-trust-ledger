@@ -155,7 +155,7 @@ const OrgDashboard = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">EduCoreTrack ID</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">EduTrack ID</p>
                     <p className="text-sm font-mono-id text-foreground">EDU-UG-2024-00482</p>
                   </div>
                   <div>
