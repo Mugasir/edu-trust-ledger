@@ -79,7 +79,7 @@ const Login = () => {
         <div className="relative flex flex-col justify-between p-12 w-full">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="h-7 w-7 text-primary-foreground" />
-            <span className="text-xl font-semibold text-primary-foreground tracking-tight">EduCoreTrack</span>
+            <span className="text-xl font-semibold text-primary-foreground tracking-tight">EduTrack</span>
             <span className="text-[10px] font-mono-id text-primary-foreground/50 bg-primary-foreground/10 px-1.5 py-0.5 rounded ml-1">UG</span>
           </Link>
           <motion.div
