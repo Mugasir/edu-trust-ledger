@@ -108,7 +108,7 @@ const Login = () => {
               ))}
             </div>
           </motion.div>
-          <p className="text-xs text-primary-foreground/40">© 2026 EduCoreTrack Uganda. All records are encrypted and tamper-proof.</p>
+          <p className="text-xs text-primary-foreground/40">© 2026 EduTrack Uganda. All records are encrypted and tamper-proof.</p>
         </div>
       </div>
 
