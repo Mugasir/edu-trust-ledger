@@ -263,7 +263,7 @@ const Index = () => {
             {[
               { step: "01", title: "Register with MoES", desc: "Schools register with verified MoES credentials and begin enrolling learners with unique EduTrack IDs — from P1 to university level." },
               { step: "02", title: "Record & Secure", desc: "PLE, UCE, UACE results, transcripts, and milestones are securely recorded with full audit trails and UNEB verification." },
-              { step: "03", title: "Search & Verify", desc: "Employers and organisations search by EduCoreTrack ID, view verified academic timelines, and download QR-authenticated reports." },
+              { step: "03", title: "Search & Verify", desc: "Employers and organisations search by EduTrack ID, view verified academic timelines, and download QR-authenticated reports." },
             ].map((item, i) => (
               <motion.div key={item.step} variants={fadeUp} custom={i} className="text-center group">
                 <div className="font-mono-id text-5xl font-bold text-primary/10 mb-4 group-hover:text-primary/25 transition-subtle">{item.step}</div>
