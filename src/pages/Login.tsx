@@ -195,7 +195,7 @@ const Login = () => {
               <Card className="border-border shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-xl">Platform Admin</CardTitle>
-                  <CardDescription>Sign in to the EduCoreTrack administrative control panel.</CardDescription>
+                  <CardDescription>Sign in to the EduTrack administrative control panel.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={(e) => handleLogin(e, "admin")} className="space-y-4">
