@@ -54,7 +54,7 @@ const Verify = () => {
                 </span>
               </CardTitle>
               <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                <span>EduCoreTrack ID: <span className="font-mono-id">EDU-UG-2024-00482</span></span>
+                <span>EduTrack ID: <span className="font-mono-id">EDU-UG-2024-00482</span></span>
                 <span>·</span>
                 <span>Nakato Sarah</span>
               </div>
