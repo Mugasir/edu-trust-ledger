@@ -66,7 +66,7 @@ const Verify = () => {
 
           <div className="mt-6 text-center">
             <p className="text-xs text-muted-foreground">
-              This verification page confirms the authenticity of the academic record via EduCoreTrack.
+              This verification page confirms the authenticity of the academic record via EduTrack.
               <br />
               Sensitive documents (UNEB result slips, transcripts) are not displayed.{" "}
               <a href="#" className="inline-flex items-center gap-1 text-primary hover:underline transition-subtle">

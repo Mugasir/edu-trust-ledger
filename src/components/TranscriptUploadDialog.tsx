@@ -112,7 +112,7 @@ const TranscriptUploadDialog = ({ learners }: TranscriptUploadDialogProps) => {
           <div className="space-y-2">
             <Label>Search Learner *</Label>
             <Input
-              placeholder="Search by name or EduCoreTrack ID..."
+              placeholder="Search by name or EduTrack ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
