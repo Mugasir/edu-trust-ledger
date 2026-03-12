@@ -320,7 +320,7 @@ const Index = () => {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl font-bold text-primary-foreground tracking-tight mb-4">Ready to build trust?</h2>
-            <p className="text-primary-foreground/60 mb-8">Join verified Ugandan schools and organisations already using EduCoreTrack to create transparent, tamper-proof academic records.</p>
+            <p className="text-primary-foreground/60 mb-8">Join verified Ugandan schools and organisations already using EduTrack to create transparent, tamper-proof academic records.</p>
             <Link to="/login">
               <Button size="lg" variant="secondary" className="transition-subtle text-base px-10 group">
                 Get Started <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
