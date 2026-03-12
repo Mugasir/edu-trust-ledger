@@ -161,7 +161,7 @@ const Signup = () => {
         >
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <GraduationCap className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-primary tracking-tight">EduCoreTrack</span>
+            <span className="text-lg font-semibold text-primary tracking-tight">EduTrack</span>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
