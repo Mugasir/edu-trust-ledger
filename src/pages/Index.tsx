@@ -16,7 +16,7 @@ const features = [
   {
     icon: Search,
     title: "Learner Lookup",
-    description: "Employers and organisations search learners by unique EduCoreTrack ID to view verified academic flow from P1 through university.",
+    description: "Employers and organisations search learners by unique EduTrack ID to view verified academic flow from P1 through university.",
   },
   {
     icon: FileCheck,

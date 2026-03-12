@@ -10,6 +10,12 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+type AppRole = "institution" | "organization" | "admin";
+
+const parseAppRole = (value: unknown): AppRole | null => {
+  return value === "institution" || value === "organization" || value === "admin" ? value : null;
+};
+
 const Login = () => {
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get("role");
@@ -25,34 +31,38 @@ const Login = () => {
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
 
-  const handleLogin = async (e: React.FormEvent, role: "institution" | "organization" | "admin") => {
+  const handleLogin = async (e: React.FormEvent, role: AppRole) => {
     e.preventDefault();
     setLoading(true);
-    const email = role === "institution" ? instEmail : role === "organization" ? orgEmail : adminEmail;
+    const email = (role === "institution" ? instEmail : role === "organization" ? orgEmail : adminEmail).trim().toLowerCase();
     const password = role === "institution" ? instPassword : role === "organization" ? orgPassword : adminPassword;
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .maybeSingle();
+      const signedInUser = authData.user;
+      if (!signedInUser) throw new Error("Unable to sign in. Please try again.");
 
-        if (roleData?.role === "admin") {
-          navigate("/platform-admin");
-        } else if (roleData?.role === "institution") {
-          navigate("/admin");
-        } else if (roleData?.role === "organization") {
-          navigate("/organization");
-        } else {
-          navigate("/");
-        }
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", signedInUser.id)
+        .maybeSingle();
+
+      const resolvedRole = parseAppRole(roleData?.role) ?? parseAppRole(signedInUser.user_metadata?.role);
+
+      if (resolvedRole === "admin") {
+        navigate("/platform-admin");
+      } else if (resolvedRole === "institution") {
+        navigate("/admin");
+      } else if (resolvedRole === "organization") {
+        navigate("/organization");
+      } else {
+        toast.error("Account role is missing. Please contact support.");
+        return;
       }
+
       toast.success("Signed in successfully!");
     } catch (error: any) {
       toast.error(error.message || "Login failed");

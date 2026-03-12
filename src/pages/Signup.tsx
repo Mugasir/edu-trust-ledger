@@ -41,9 +41,10 @@ const Signup = () => {
   const handleInstitutionSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const { data, error } = await supabase.auth.signUp({
-        email: instForm.email,
+        email: instForm.email.trim().toLowerCase(),
         password: instForm.password,
         options: {
           emailRedirectTo: window.location.origin,
@@ -54,18 +55,22 @@ const Signup = () => {
         },
       });
       if (error) throw error;
+      if (!data.user) throw new Error("Unable to create account. Please try again.");
 
-      if (data.user) {
-        // Insert institution details
-        const { error: instError } = await supabase.from("institutions").insert({
-          user_id: data.user.id,
-          name: instForm.schoolName,
-          moes_reg_number: instForm.moesRegNumber,
-          district: instForm.district,
-          level: instForm.level,
-        });
-        if (instError) console.error("Institution insert error:", instError);
+      if (!data.session) {
+        toast.success("Account created. Verify your email, then sign in.");
+        navigate("/login");
+        return;
       }
+
+      const { error: instError } = await supabase.from("institutions").insert({
+        user_id: data.user.id,
+        name: instForm.schoolName,
+        moes_reg_number: instForm.moesRegNumber,
+        district: instForm.district,
+        level: instForm.level,
+      });
+      if (instError) throw instError;
 
       toast.success("Account created successfully!");
       navigate("/admin");
@@ -79,9 +84,10 @@ const Signup = () => {
   const handleOrgSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const { data, error } = await supabase.auth.signUp({
-        email: orgForm.email,
+        email: orgForm.email.trim().toLowerCase(),
         password: orgForm.password,
         options: {
           emailRedirectTo: window.location.origin,
@@ -92,16 +98,21 @@ const Signup = () => {
         },
       });
       if (error) throw error;
+      if (!data.user) throw new Error("Unable to create account. Please try again.");
 
-      if (data.user) {
-        const { error: orgError } = await supabase.from("organizations").insert({
-          user_id: data.user.id,
-          name: orgForm.orgName,
-          org_id_code: orgForm.orgIdCode,
-          contact_email: orgForm.contactEmail,
-        });
-        if (orgError) console.error("Organization insert error:", orgError);
+      if (!data.session) {
+        toast.success("Account created. Verify your email, then sign in.");
+        navigate("/login");
+        return;
       }
+
+      const { error: orgError } = await supabase.from("organizations").insert({
+        user_id: data.user.id,
+        name: orgForm.orgName,
+        org_id_code: orgForm.orgIdCode,
+        contact_email: orgForm.contactEmail,
+      });
+      if (orgError) throw orgError;
 
       toast.success("Account created successfully!");
       navigate("/organization");

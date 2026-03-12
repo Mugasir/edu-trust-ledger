@@ -55,7 +55,7 @@ const DashboardLayout = ({ children, role, title }: DashboardLayoutProps) => {
         <div className="p-6">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="h-6 w-6 text-sidebar-primary" />
-            <span className="text-lg font-semibold text-sidebar-foreground tracking-tight">EduCoreTrack</span>
+            <span className="text-lg font-semibold text-sidebar-foreground tracking-tight">EduTrack</span>
             <span className="text-[9px] font-mono-id text-sidebar-muted bg-sidebar-accent px-1 py-0.5 rounded ml-1">UG</span>
           </Link>
         </div>
