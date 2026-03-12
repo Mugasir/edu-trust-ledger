@@ -91,7 +91,7 @@ const OrgDashboard = () => {
         <Card className="border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Search Learner</CardTitle>
-            <CardDescription>Enter an EduCoreTrack ID to view a verified academic timeline across Uganda's education levels</CardDescription>
+            <CardDescription>Enter an EduTrack ID to view a verified academic timeline across Uganda's education levels</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex gap-3">

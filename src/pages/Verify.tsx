@@ -13,7 +13,7 @@ const Verify = () => {
         <div className="container mx-auto flex items-center justify-between py-4 px-6">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-primary tracking-tight">EduCoreTrack</span>
+            <span className="text-lg font-semibold text-primary tracking-tight">EduTrack</span>
             <span className="text-[10px] font-mono-id text-muted-foreground bg-secondary px-1.5 py-0.5 rounded ml-1">UG</span>
           </div>
           <span className="text-xs text-muted-foreground">UNEB Verification Portal</span>

@@ -130,7 +130,7 @@ const AdminDashboard = () => {
                 <CardContent>
                   <div className="relative mb-4">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search by name or EduCoreTrack ID..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                    <Input placeholder="Search by name or EduTrack ID..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     {filteredLearners.length === 0 && (
