@@ -41,9 +41,10 @@ const Signup = () => {
   const handleInstitutionSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const { data, error } = await supabase.auth.signUp({
-        email: instForm.email,
+        email: instForm.email.trim().toLowerCase(),
         password: instForm.password,
         options: {
           emailRedirectTo: window.location.origin,
@@ -54,18 +55,22 @@ const Signup = () => {
         },
       });
       if (error) throw error;
+      if (!data.user) throw new Error("Unable to create account. Please try again.");
 
-      if (data.user) {
-        // Insert institution details
-        const { error: instError } = await supabase.from("institutions").insert({
-          user_id: data.user.id,
-          name: instForm.schoolName,
-          moes_reg_number: instForm.moesRegNumber,
-          district: instForm.district,
-          level: instForm.level,
-        });
-        if (instError) console.error("Institution insert error:", instError);
+      if (!data.session) {
+        toast.success("Account created. Verify your email, then sign in.");
+        navigate("/login");
+        return;
       }
+
+      const { error: instError } = await supabase.from("institutions").insert({
+        user_id: data.user.id,
+        name: instForm.schoolName,
+        moes_reg_number: instForm.moesRegNumber,
+        district: instForm.district,
+        level: instForm.level,
+      });
+      if (instError) throw instError;
 
       toast.success("Account created successfully!");
       navigate("/admin");
@@ -79,9 +84,10 @@ const Signup = () => {
   const handleOrgSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const { data, error } = await supabase.auth.signUp({
-        email: orgForm.email,
+        email: orgForm.email.trim().toLowerCase(),
         password: orgForm.password,
         options: {
           emailRedirectTo: window.location.origin,
@@ -92,16 +98,21 @@ const Signup = () => {
         },
       });
       if (error) throw error;
+      if (!data.user) throw new Error("Unable to create account. Please try again.");
 
-      if (data.user) {
-        const { error: orgError } = await supabase.from("organizations").insert({
-          user_id: data.user.id,
-          name: orgForm.orgName,
-          org_id_code: orgForm.orgIdCode,
-          contact_email: orgForm.contactEmail,
-        });
-        if (orgError) console.error("Organization insert error:", orgError);
+      if (!data.session) {
+        toast.success("Account created. Verify your email, then sign in.");
+        navigate("/login");
+        return;
       }
+
+      const { error: orgError } = await supabase.from("organizations").insert({
+        user_id: data.user.id,
+        name: orgForm.orgName,
+        org_id_code: orgForm.orgIdCode,
+        contact_email: orgForm.contactEmail,
+      });
+      if (orgError) throw orgError;
 
       toast.success("Account created successfully!");
       navigate("/organization");
@@ -120,7 +131,7 @@ const Signup = () => {
         <div className="relative flex flex-col justify-between p-12 w-full">
           <Link to="/" className="flex items-center gap-2">
             <GraduationCap className="h-7 w-7 text-primary-foreground" />
-            <span className="text-xl font-semibold text-primary-foreground tracking-tight">EduCoreTrack</span>
+            <span className="text-xl font-semibold text-primary-foreground tracking-tight">EduTrack</span>
             <span className="text-[10px] font-mono-id text-primary-foreground/50 bg-primary-foreground/10 px-1.5 py-0.5 rounded ml-1">UG</span>
           </Link>
           <motion.div
@@ -136,7 +147,7 @@ const Signup = () => {
               Register your institution or organisation to start managing and verifying academic records across Uganda's education system.
             </p>
           </motion.div>
-          <p className="text-xs text-primary-foreground/40">© 2026 EduCoreTrack Uganda. All records are encrypted and tamper-proof.</p>
+          <p className="text-xs text-primary-foreground/40">© 2026 EduTrack Uganda. All records are encrypted and tamper-proof.</p>
         </div>
       </div>
 
@@ -150,7 +161,7 @@ const Signup = () => {
         >
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <GraduationCap className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-primary tracking-tight">EduCoreTrack</span>
+            <span className="text-lg font-semibold text-primary tracking-tight">EduTrack</span>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -263,7 +274,7 @@ const Signup = () => {
             <Link to="/login" className="text-primary font-medium hover:underline transition-subtle">Sign In</Link>
           </p>
           <p className="mt-3 text-center text-xs text-muted-foreground">
-            By signing up, you agree to EduCoreTrack's{" "}
+            By signing up, you agree to EduTrack's{" "}
             <a href="#" className="underline hover:text-foreground transition-subtle">Terms of Service</a>
             {" "}and{" "}
             <a href="#" className="underline hover:text-foreground transition-subtle">Privacy Policy</a>.
