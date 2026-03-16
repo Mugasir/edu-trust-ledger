@@ -44,6 +44,25 @@ const Login = () => {
       const signedInUser = authData.user;
       if (!signedInUser) throw new Error("Unable to sign in. Please try again.");
 
+      // Check profile approval status
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("status")
+        .eq("user_id", signedInUser.id)
+        .maybeSingle();
+
+      const profileStatus = (profile as any)?.status;
+      if (profileStatus === "pending") {
+        await supabase.auth.signOut();
+        toast.error("Your account is pending approval by the platform administrator. Please check back later.");
+        return;
+      }
+      if (profileStatus === "rejected") {
+        await supabase.auth.signOut();
+        toast.error("Your account has been rejected. Please contact the administrator.");
+        return;
+      }
+
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
@@ -82,31 +101,13 @@ const Login = () => {
             <span className="text-xl font-semibold text-primary-foreground tracking-tight">EduTrack</span>
             <span className="text-[10px] font-mono-id text-primary-foreground/50 bg-primary-foreground/10 px-1.5 py-0.5 rounded ml-1">UG</span>
           </Link>
-          <motion.div
-            className="max-w-md"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
+          <motion.div className="max-w-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
             <h2 className="text-3xl font-bold text-primary-foreground tracking-tight leading-tight">
               Uganda's trusted<br />academic ledger.
             </h2>
             <p className="mt-4 text-primary-foreground/60 leading-relaxed">
               From PLE results to university transcripts — access your institution dashboard or organisation portal to manage verified academic records across Uganda's education system.
             </p>
-            <div className="mt-8 grid grid-cols-2 gap-4">
-              {[
-                { label: "Primary", detail: "P1–P7 · PLE" },
-                { label: "O-Level", detail: "S1–S4 · UCE" },
-                { label: "A-Level", detail: "S5–S6 · UACE" },
-                { label: "University", detail: "Degrees" },
-              ].map((item) => (
-                <div key={item.label} className="bg-primary-foreground/5 rounded-md p-3 border border-primary-foreground/10">
-                  <p className="text-sm font-semibold text-primary-foreground">{item.label}</p>
-                  <p className="text-xs text-primary-foreground/40 font-mono-id">{item.detail}</p>
-                </div>
-              ))}
-            </div>
           </motion.div>
           <p className="text-xs text-primary-foreground/40">© 2026 EduTrack Uganda. All records are encrypted and tamper-proof.</p>
         </div>
@@ -114,12 +115,7 @@ const Login = () => {
 
       {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <motion.div
-          className="w-full max-w-md"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div className="w-full max-w-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <GraduationCap className="h-6 w-6 text-primary" />
             <span className="text-lg font-semibold text-primary tracking-tight">EduTrack</span>
@@ -127,18 +123,9 @@ const Login = () => {
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3 mb-6">
-              <TabsTrigger value="institution" className="gap-2 transition-subtle">
-                <Building2 className="h-4 w-4" />
-                Institution
-              </TabsTrigger>
-              <TabsTrigger value="organization" className="gap-2 transition-subtle">
-                <Shield className="h-4 w-4" />
-                Organisation
-              </TabsTrigger>
-              <TabsTrigger value="admin" className="gap-2 transition-subtle">
-                <ShieldCheck className="h-4 w-4" />
-                Admin
-              </TabsTrigger>
+              <TabsTrigger value="institution" className="gap-2 transition-subtle"><Building2 className="h-4 w-4" /> Institution</TabsTrigger>
+              <TabsTrigger value="organization" className="gap-2 transition-subtle"><Shield className="h-4 w-4" /> Organisation</TabsTrigger>
+              <TabsTrigger value="admin" className="gap-2 transition-subtle"><ShieldCheck className="h-4 w-4" /> Admin</TabsTrigger>
             </TabsList>
 
             <TabsContent value="institution">
@@ -149,14 +136,8 @@ const Login = () => {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={(e) => handleLogin(e, "institution")} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="inst-email">Email Address</Label>
-                      <Input id="inst-email" type="email" required value={instEmail} onChange={(e) => setInstEmail(e.target.value)} placeholder="admin@school.ac.ug" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="inst-password">Password</Label>
-                      <Input id="inst-password" type="password" required value={instPassword} onChange={(e) => setInstPassword(e.target.value)} placeholder="••••••••" />
-                    </div>
+                    <div className="space-y-2"><Label htmlFor="inst-email">Email Address</Label><Input id="inst-email" type="email" required value={instEmail} onChange={(e) => setInstEmail(e.target.value)} placeholder="admin@school.ac.ug" /></div>
+                    <div className="space-y-2"><Label htmlFor="inst-password">Password</Label><Input id="inst-password" type="password" required value={instPassword} onChange={(e) => setInstPassword(e.target.value)} placeholder="••••••••" /></div>
                     <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Sign In <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -174,14 +155,8 @@ const Login = () => {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={(e) => handleLogin(e, "organization")} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="org-email">Email Address</Label>
-                      <Input id="org-email" type="email" required value={orgEmail} onChange={(e) => setOrgEmail(e.target.value)} placeholder="hr@company.co.ug" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="org-password">Password</Label>
-                      <Input id="org-password" type="password" required value={orgPassword} onChange={(e) => setOrgPassword(e.target.value)} placeholder="••••••••" />
-                    </div>
+                    <div className="space-y-2"><Label htmlFor="org-email">Email Address</Label><Input id="org-email" type="email" required value={orgEmail} onChange={(e) => setOrgEmail(e.target.value)} placeholder="hr@company.co.ug" /></div>
+                    <div className="space-y-2"><Label htmlFor="org-password">Password</Label><Input id="org-password" type="password" required value={orgPassword} onChange={(e) => setOrgPassword(e.target.value)} placeholder="••••••••" /></div>
                     <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Sign In <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -199,14 +174,8 @@ const Login = () => {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={(e) => handleLogin(e, "admin")} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="admin-email">Admin Email</Label>
-                      <Input id="admin-email" type="email" required value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} placeholder="admin@edutrack.ug" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="admin-password">Password</Label>
-                      <Input id="admin-password" type="password" required value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} placeholder="••••••••" />
-                    </div>
+                    <div className="space-y-2"><Label htmlFor="admin-email">Admin Email</Label><Input id="admin-email" type="email" required value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} placeholder="admin@edutrack.ug" /></div>
+                    <div className="space-y-2"><Label htmlFor="admin-password">Password</Label><Input id="admin-password" type="password" required value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} placeholder="••••••••" /></div>
                     <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Sign In <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />

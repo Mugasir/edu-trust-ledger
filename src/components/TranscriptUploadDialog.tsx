@@ -68,14 +68,14 @@ const TranscriptUploadDialog = ({ learners }: TranscriptUploadDialogProps) => {
       }
 
       // Insert transcript record
-      const { error: dbError } = await supabase.from("transcripts" as any).insert({
+      const { error: dbError } = await supabase.from("transcripts").insert({
         learner_id: form.learner_id,
         file_name: file.name,
         file_path: filePath,
         transcript_type: form.transcript_type,
         academic_year: form.academic_year || null,
         uploaded_by: uploaderName,
-      } as any);
+      });
 
       if (dbError) {
         toast({ title: "Error", description: dbError.message, variant: "destructive" });

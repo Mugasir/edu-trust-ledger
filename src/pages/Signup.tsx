@@ -1,79 +1,66 @@
 import { useState } from "react";
-import { GraduationCap, Building2, Shield, ArrowRight, Loader2 } from "lucide-react";
+import { GraduationCap, Building2, Shield, ArrowRight, Loader2, Clock } from "lucide-react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { UGANDA_DISTRICTS } from "@/lib/ugandaDistricts";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();
   const defaultRole = searchParams.get("role") === "organization" ? "organization" : "institution";
   const [activeTab, setActiveTab] = useState(defaultRole);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [districtSearch, setDistrictSearch] = useState("");
   const navigate = useNavigate();
 
-  // Institution form state
   const [instForm, setInstForm] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    schoolName: "",
-    moesRegNumber: "",
-    district: "",
-    level: "secondary",
+    fullName: "", email: "", password: "", schoolName: "", moesRegNumber: "", district: "", level: "secondary",
   });
 
-  // Organization form state
   const [orgForm, setOrgForm] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    orgName: "",
-    orgIdCode: "",
-    contactEmail: "",
+    fullName: "", email: "", password: "", orgName: "", orgIdCode: "", contactEmail: "",
   });
+
+  const filteredDistricts = UGANDA_DISTRICTS.filter(d =>
+    d.toLowerCase().includes(districtSearch.toLowerCase())
+  );
 
   const handleInstitutionSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const { data, error } = await supabase.auth.signUp({
         email: instForm.email.trim().toLowerCase(),
         password: instForm.password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: {
-            full_name: instForm.fullName,
-            role: "institution",
-          },
+          data: { full_name: instForm.fullName, role: "institution" },
         },
       });
       if (error) throw error;
       if (!data.user) throw new Error("Unable to create account. Please try again.");
 
-      if (!data.session) {
-        toast.success("Account created. Verify your email, then sign in.");
-        navigate("/login");
-        return;
+      // Create institution record regardless of session
+      if (data.session) {
+        await supabase.from("institutions").insert({
+          user_id: data.user.id,
+          name: instForm.schoolName,
+          moes_reg_number: instForm.moesRegNumber,
+          district: instForm.district,
+          level: instForm.level,
+        });
+        await supabase.auth.signOut();
       }
 
-      const { error: instError } = await supabase.from("institutions").insert({
-        user_id: data.user.id,
-        name: instForm.schoolName,
-        moes_reg_number: instForm.moesRegNumber,
-        district: instForm.district,
-        level: instForm.level,
-      });
-      if (instError) throw instError;
-
-      toast.success("Account created successfully!");
-      navigate("/admin");
+      setSubmitted(true);
     } catch (error: any) {
       toast.error(error.message || "Signup failed");
     } finally {
@@ -84,44 +71,55 @@ const Signup = () => {
   const handleOrgSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const { data, error } = await supabase.auth.signUp({
         email: orgForm.email.trim().toLowerCase(),
         password: orgForm.password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: {
-            full_name: orgForm.fullName,
-            role: "organization",
-          },
+          data: { full_name: orgForm.fullName, role: "organization" },
         },
       });
       if (error) throw error;
       if (!data.user) throw new Error("Unable to create account. Please try again.");
 
-      if (!data.session) {
-        toast.success("Account created. Verify your email, then sign in.");
-        navigate("/login");
-        return;
+      if (data.session) {
+        await supabase.from("organizations").insert({
+          user_id: data.user.id,
+          name: orgForm.orgName,
+          org_id_code: orgForm.orgIdCode,
+          contact_email: orgForm.contactEmail,
+        });
+        await supabase.auth.signOut();
       }
 
-      const { error: orgError } = await supabase.from("organizations").insert({
-        user_id: data.user.id,
-        name: orgForm.orgName,
-        org_id_code: orgForm.orgIdCode,
-        contact_email: orgForm.contactEmail,
-      });
-      if (orgError) throw orgError;
-
-      toast.success("Account created successfully!");
-      navigate("/organization");
+      setSubmitted(true);
     } catch (error: any) {
       toast.error(error.message || "Signup failed");
     } finally {
       setLoading(false);
     }
   };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md text-center space-y-4">
+          <div className="h-16 w-16 rounded-full bg-warning/10 flex items-center justify-center mx-auto">
+            <Clock className="h-8 w-8 text-warning" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground">Account Pending Approval</h2>
+          <p className="text-muted-foreground">
+            Your account has been created and is awaiting approval by the EduTrack platform administrator.
+            You will be able to sign in once your account has been verified and approved.
+          </p>
+          <Link to="/login">
+            <Button variant="outline" className="mt-4">Go to Login</Button>
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -134,12 +132,7 @@ const Signup = () => {
             <span className="text-xl font-semibold text-primary-foreground tracking-tight">EduTrack</span>
             <span className="text-[10px] font-mono-id text-primary-foreground/50 bg-primary-foreground/10 px-1.5 py-0.5 rounded ml-1">UG</span>
           </Link>
-          <motion.div
-            className="max-w-md"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
+          <motion.div className="max-w-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
             <h2 className="text-3xl font-bold text-primary-foreground tracking-tight leading-tight">
               Join Uganda's trusted<br />academic ledger.
             </h2>
@@ -153,12 +146,7 @@ const Signup = () => {
 
       {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <motion.div
-          className="w-full max-w-md"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div className="w-full max-w-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <GraduationCap className="h-6 w-6 text-primary" />
             <span className="text-lg font-semibold text-primary tracking-tight">EduTrack</span>
@@ -166,58 +154,50 @@ const Signup = () => {
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="institution" className="gap-2 transition-subtle">
-                <Building2 className="h-4 w-4" />
-                Institution
-              </TabsTrigger>
-              <TabsTrigger value="organization" className="gap-2 transition-subtle">
-                <Shield className="h-4 w-4" />
-                Organisation
-              </TabsTrigger>
+              <TabsTrigger value="institution" className="gap-2 transition-subtle"><Building2 className="h-4 w-4" /> Institution</TabsTrigger>
+              <TabsTrigger value="organization" className="gap-2 transition-subtle"><Shield className="h-4 w-4" /> Organisation</TabsTrigger>
             </TabsList>
 
             <TabsContent value="institution">
               <Card className="border-border shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-xl">Register Institution</CardTitle>
-                  <CardDescription>Create an account for your MoES-registered school or university.</CardDescription>
+                  <CardDescription>Create an account for your MoES-registered school or university. Your account will be reviewed by the admin before activation.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleInstitutionSignup} className="space-y-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="inst-name">Full Name</Label>
-                      <Input id="inst-name" required value={instForm.fullName} onChange={(e) => setInstForm(p => ({ ...p, fullName: e.target.value }))} placeholder="e.g. Dr. Mukasa John" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="inst-school">School / University Name</Label>
-                      <Input id="inst-school" required value={instForm.schoolName} onChange={(e) => setInstForm(p => ({ ...p, schoolName: e.target.value }))} placeholder="e.g. Mengo Senior School" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="inst-moes">MoES Registration Number</Label>
-                      <Input id="inst-moes" required className="font-mono-id" value={instForm.moesRegNumber} onChange={(e) => setInstForm(p => ({ ...p, moesRegNumber: e.target.value }))} placeholder="e.g. S.541/001" />
-                    </div>
+                    <div className="space-y-1.5"><Label htmlFor="inst-name">Full Name</Label><Input id="inst-name" required value={instForm.fullName} onChange={(e) => setInstForm(p => ({ ...p, fullName: e.target.value }))} placeholder="e.g. Dr. Mukasa John" /></div>
+                    <div className="space-y-1.5"><Label htmlFor="inst-school">School / University Name</Label><Input id="inst-school" required value={instForm.schoolName} onChange={(e) => setInstForm(p => ({ ...p, schoolName: e.target.value }))} placeholder="e.g. Mengo Senior School" /></div>
+                    <div className="space-y-1.5"><Label htmlFor="inst-moes">MoES Registration Number</Label><Input id="inst-moes" required className="font-mono-id" value={instForm.moesRegNumber} onChange={(e) => setInstForm(p => ({ ...p, moesRegNumber: e.target.value }))} placeholder="e.g. S.541/001" /></div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
-                        <Label htmlFor="inst-district">District</Label>
-                        <Input id="inst-district" value={instForm.district} onChange={(e) => setInstForm(p => ({ ...p, district: e.target.value }))} placeholder="e.g. Kampala" />
+                        <Label>District</Label>
+                        <Select value={instForm.district} onValueChange={(v) => setInstForm(p => ({ ...p, district: v }))}>
+                          <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                          <SelectContent>
+                            <div className="px-2 pb-2">
+                              <Input placeholder="Search district..." value={districtSearch} onChange={(e) => setDistrictSearch(e.target.value)} className="h-8 text-xs" />
+                            </div>
+                            <div className="max-h-48 overflow-y-auto">
+                              {filteredDistricts.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                            </div>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="inst-level">Level</Label>
-                        <select id="inst-level" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={instForm.level} onChange={(e) => setInstForm(p => ({ ...p, level: e.target.value }))}>
-                          <option value="primary">Primary</option>
-                          <option value="secondary">Secondary</option>
-                          <option value="university">University</option>
-                        </select>
+                        <Label>Level</Label>
+                        <Select value={instForm.level} onValueChange={(v) => setInstForm(p => ({ ...p, level: v }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="primary">Primary</SelectItem>
+                            <SelectItem value="secondary">Secondary</SelectItem>
+                            <SelectItem value="university">University</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="inst-email">Email Address</Label>
-                      <Input id="inst-email" type="email" required value={instForm.email} onChange={(e) => setInstForm(p => ({ ...p, email: e.target.value }))} placeholder="admin@school.ac.ug" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="inst-password">Password</Label>
-                      <Input id="inst-password" type="password" required minLength={6} value={instForm.password} onChange={(e) => setInstForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" />
-                    </div>
+                    <div className="space-y-1.5"><Label htmlFor="inst-email">Email Address</Label><Input id="inst-email" type="email" required value={instForm.email} onChange={(e) => setInstForm(p => ({ ...p, email: e.target.value }))} placeholder="admin@school.ac.ug" /></div>
+                    <div className="space-y-1.5"><Label htmlFor="inst-password">Password</Label><Input id="inst-password" type="password" required minLength={6} value={instForm.password} onChange={(e) => setInstForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" /></div>
                     <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Create Account <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -231,34 +211,16 @@ const Signup = () => {
               <Card className="border-border shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-xl">Register Organisation</CardTitle>
-                  <CardDescription>Create a paid organisation account to verify learner records.</CardDescription>
+                  <CardDescription>Create a paid organisation account to verify learner records. Your account will be reviewed before activation.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleOrgSignup} className="space-y-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="org-name">Full Name</Label>
-                      <Input id="org-name" required value={orgForm.fullName} onChange={(e) => setOrgForm(p => ({ ...p, fullName: e.target.value }))} placeholder="e.g. Namugga Sandra" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="org-company">Organisation Name</Label>
-                      <Input id="org-company" required value={orgForm.orgName} onChange={(e) => setOrgForm(p => ({ ...p, orgName: e.target.value }))} placeholder="e.g. MTN Uganda Ltd" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="org-code">Organisation ID</Label>
-                      <Input id="org-code" required className="font-mono-id" value={orgForm.orgIdCode} onChange={(e) => setOrgForm(p => ({ ...p, orgIdCode: e.target.value }))} placeholder="e.g. ORG-UG-8827" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="org-contact">Contact Email</Label>
-                      <Input id="org-contact" type="email" value={orgForm.contactEmail} onChange={(e) => setOrgForm(p => ({ ...p, contactEmail: e.target.value }))} placeholder="hr@company.co.ug" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="org-email">Login Email</Label>
-                      <Input id="org-email" type="email" required value={orgForm.email} onChange={(e) => setOrgForm(p => ({ ...p, email: e.target.value }))} placeholder="you@company.co.ug" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="org-password">Password</Label>
-                      <Input id="org-password" type="password" required minLength={6} value={orgForm.password} onChange={(e) => setOrgForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" />
-                    </div>
+                    <div className="space-y-1.5"><Label htmlFor="org-name">Full Name</Label><Input id="org-name" required value={orgForm.fullName} onChange={(e) => setOrgForm(p => ({ ...p, fullName: e.target.value }))} placeholder="e.g. Namugga Sandra" /></div>
+                    <div className="space-y-1.5"><Label htmlFor="org-company">Organisation Name</Label><Input id="org-company" required value={orgForm.orgName} onChange={(e) => setOrgForm(p => ({ ...p, orgName: e.target.value }))} placeholder="e.g. MTN Uganda Ltd" /></div>
+                    <div className="space-y-1.5"><Label htmlFor="org-code">Organisation ID</Label><Input id="org-code" required className="font-mono-id" value={orgForm.orgIdCode} onChange={(e) => setOrgForm(p => ({ ...p, orgIdCode: e.target.value }))} placeholder="e.g. ORG-UG-8827" /></div>
+                    <div className="space-y-1.5"><Label htmlFor="org-contact">Contact Email</Label><Input id="org-contact" type="email" value={orgForm.contactEmail} onChange={(e) => setOrgForm(p => ({ ...p, contactEmail: e.target.value }))} placeholder="hr@company.co.ug" /></div>
+                    <div className="space-y-1.5"><Label htmlFor="org-email">Login Email</Label><Input id="org-email" type="email" required value={orgForm.email} onChange={(e) => setOrgForm(p => ({ ...p, email: e.target.value }))} placeholder="you@company.co.ug" /></div>
+                    <div className="space-y-1.5"><Label htmlFor="org-password">Password</Label><Input id="org-password" type="password" required minLength={6} value={orgForm.password} onChange={(e) => setOrgForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" /></div>
                     <Button type="submit" className="w-full transition-subtle mt-2 group" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                       Create Account <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
