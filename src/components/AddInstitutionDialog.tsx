@@ -9,13 +9,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { UGANDA_DISTRICTS } from "@/lib/ugandaDistricts";
 
 const levels = ["Primary", "Secondary", "Tertiary", "University"];
-const districts = ["Kampala", "Wakiso", "Mukono", "Jinja", "Mbarara", "Gulu", "Lira", "Soroti", "Mbale", "Fort Portal"];
 
 const AddInstitutionDialog = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [districtSearch, setDistrictSearch] = useState("");
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -26,6 +27,10 @@ const AddInstitutionDialog = () => {
     level: "",
     district: "",
   });
+
+  const filteredDistricts = UGANDA_DISTRICTS.filter(d =>
+    d.toLowerCase().includes(districtSearch.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +100,17 @@ const AddInstitutionDialog = () => {
               <Select value={form.district} onValueChange={(v) => setForm(f => ({ ...f, district: v }))}>
                 <SelectTrigger><SelectValue placeholder="Select district" /></SelectTrigger>
                 <SelectContent>
-                  {districts.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  <div className="px-2 pb-2">
+                    <Input
+                      placeholder="Search district..."
+                      value={districtSearch}
+                      onChange={(e) => setDistrictSearch(e.target.value)}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-y-auto">
+                    {filteredDistricts.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  </div>
                 </SelectContent>
               </Select>
             </div>
